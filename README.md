@@ -1,5 +1,17 @@
 # DocSafe — App demo de la serie "Arquitectura privada en Azure Container Apps con Terraform"
 
+> [!info] Esta app forma parte de un artículo
+> Este repositorio es el código de la app de ejemplo que acompaña al artículo
+> **[Arquitectura privada en Azure Container Apps con Terraform](https://kevorojas.com/es/blog/azure-container-apps-arquitectura-privada)**,
+> publicado en [kevorojas.com](https://kevorojas.com). Ahí explico, capítulo por
+> capítulo, cómo se construye con **Terraform** una arquitectura privada en Azure
+> —VNet, sin ingress público, identidades sin secretos, pipelines separados— y
+> esta app es la "carga útil" que se hostea dentro de esa infraestructura.
+>
+> Si llegaste directo al repo, te recomiendo **empezar por el artículo** para
+> tener el contexto completo: acá está solo la app; la estrella de la serie es la
+> infraestructura que la protege.
+
 Esta es la **app de ejemplo** ("la carga útil") que corre *dentro* de la
 arquitectura que construimos en la serie de YouTube de KevoRojas. Es una app
 mínima de **procesamiento de documentos**: subís un archivo, se valida, se
