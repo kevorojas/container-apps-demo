@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+.Python
+build/
+dist/
+.venv/
+venv/
+env/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# Entorno
+.env
+.env.local
+*.local
+
+# Datos locales (Azurite / SQLite del catálogo si se corre fuera de volúmenes)
+azurite-data/
+__azurite_db*
+*.db
+data/
+
+# Editores / SO
+.DS_Store
+.idea/
+.vscode/
+*.swp

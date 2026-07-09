@@ -1,0 +1,10 @@
+{% if error %}
+<div class="banner error" role="alert">✕ {{ error }}</div>
+{% else %}
+<div class="banner ok" role="status">✓ Documento subido y guardado en el storage.</div>
+{% endif %}
+
+{# Re-renderiza el listado en su slot para que se vea el nuevo documento sin recargar #}
+<div id="documents-slot" hx-swap-oob="innerHTML">
+  {% include "_documents.html" %}
+</div>

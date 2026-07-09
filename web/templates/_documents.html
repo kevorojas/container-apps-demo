@@ -1,0 +1,28 @@
+{% if documents %}
+<table class="docs">
+  <thead>
+    <tr>
+      <th>Nombre</th>
+      <th>Tipo</th>
+      <th>Tamaño</th>
+      <th class="hash-col">SHA-256</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for doc in documents %}
+    <tr>
+      <td class="name">{{ doc.name }}</td>
+      <td><span class="pill">{{ doc.content_type }}</span></td>
+      <td class="num">{{ doc.size | human_size }}</td>
+      <td class="hash-col"><code title="{{ doc.sha256 }}">{{ doc.sha256[:16] }}…</code></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="empty">
+  <div class="empty-mark">◇</div>
+  <p class="empty-title">Todavía no hay documentos</p>
+  <p class="muted">Subí tu primer archivo para verlo aparecer acá.</p>
+</div>
+{% endif %}

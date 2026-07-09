@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DocSafe — Procesamiento de documentos</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">◆</span>
+        <span class="brand-name">Doc<span class="accent">Safe</span></span>
+      </div>
+      <span class="tag">demo · Azure Container Apps</span>
+    </header>
+
+    <main class="grid">
+      <section class="card">
+        <h2>Subir documento</h2>
+        <p class="muted">
+          Se valida (hash, tamaño y tipo) y se guarda en el storage privado.
+          Tipos permitidos: PDF, TXT, PNG, JPG.
+        </p>
+
+        <form
+          id="upload-form"
+          hx-post="/upload"
+          hx-target="#result-slot"
+          hx-swap="innerHTML"
+          hx-encoding="multipart/form-data"
+          hx-on::after-request="if(event.detail.successful) this.reset()"
+        >
+          <label class="file-field">
+            <input type="file" name="file" required
+                   accept=".pdf,.txt,.png,.jpg,.jpeg" />
+            <span class="file-hint">Elegí un archivo…</span>
+          </label>
+
+          <button type="submit" class="btn">
+            <span class="btn-label">Subir</span>
+            <span class="htmx-indicator spinner"></span>
+          </button>
+        </form>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Catálogo</h2>
+          <button class="btn ghost"
+                  hx-get="/documents"
+                  hx-target="#documents-slot"
+                  hx-swap="innerHTML">
+            Refrescar
+          </button>
+        </div>
+
+        <div id="result-slot"></div>
+
+        <div id="documents-slot">
+          {% include "_documents.html" %}
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span class="muted">
+        Flujo real: <code>usuario → web → api → processor → storage</code>,
+        y <code>api → catalog</code> para el listado.
+      </span>
+    </footer>
+  </div>
+</body>
+</html>

@@ -1,0 +1,104 @@
+# docker-compose de la app demo "DocSafe" (serie Azure Container Apps).
+#
+# Levanta los 4 microservicios FastAPI + Azurite (emulador de Azure Storage).
+# SOLO el `web` expone puerto al host: emula el modelo de "una única puerta
+# pública". El resto (api, processor, catalog, azurite) se hablan por la red
+# interna de Docker — igual que servicios intra-VNet en Azure.
+#
+# IMPORTANTE: esto muestra SOLO la app. NO reproduce la capa de seguridad de
+# Azure (VNet, managed identity, private endpoints, App Gateway/WAF). Eso se
+# construye con Terraform en otro repo. Ver README.md.
+
+services:
+  # ---- Storage (emulador Azure Blob) -----------------------------------
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite:latest
+    command: azurite-blob --blobHost 0.0.0.0 --blobPort 10000
+    # Sin puerto al host: sólo el processor lo alcanza por la red interna.
+    volumes:
+      - azurite-data:/data
+    networks:
+      - docsafe
+    healthcheck:
+      # La imagen de Azurite es node-alpine (sin curl ni nc): usamos node
+      # para chequear que el puerto 10000 acepta conexiones.
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('net').connect(10000,'127.0.0.1').on('connect',()=>process.exit(0)).on('error',()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+  # ---- catalog: índice/metadata (interno) ------------------------------
+  catalog:
+    build: ./catalog
+    environment:
+      CATALOG_DB_PATH: /data/catalog.db
+    volumes:
+      - catalog-data:/data
+    networks:
+      - docsafe
+    # Sin ports: no expuesto al host.
+
+  # ---- processor: valida + escribe en storage (interno) ----------------
+  processor:
+    build: ./processor
+    environment:
+      STORAGE_MODE: azurite
+      STORAGE_CONTAINER: documents
+      CATALOG_URL: http://catalog:8000
+      MAX_SIZE_BYTES: "10485760" # 10 MB
+      # Connection string del emulador Azurite. Se lee de tu archivo `.env` (no
+      # se versiona la clave). Copiá `.env.example` a `.env` y pegá la string de
+      # desarrollo desde la doc oficial de Microsoft:
+      # https://learn.microsoft.com/en-us/azure/storage/common/storage-connect-azurite?tabs=blob-storage
+      AZURITE_CONNECTION_STRING: ${AZURITE_CONNECTION_STRING:?Falta AZURITE_CONNECTION_STRING. Copia .env.example a .env y pega la connection string de Azurite (ver el link en .env.example).}
+    depends_on:
+      azurite:
+        condition: service_healthy
+      catalog:
+        condition: service_started
+    networks:
+      - docsafe
+    # Sin ports: no expuesto al host.
+
+  # ---- api: backend interno que orquesta (interno) ---------------------
+  api:
+    build: ./api
+    environment:
+      PROCESSOR_URL: http://processor:8000
+      CATALOG_URL: http://catalog:8000
+    depends_on:
+      processor:
+        condition: service_started
+      catalog:
+        condition: service_started
+    networks:
+      - docsafe
+    # Sin ports: no expuesto al host.
+
+  # ---- web: frontend/BFF (LA única puerta pública) ---------------------
+  web:
+    build: ./web
+    environment:
+      API_URL: http://api:8000
+    ports:
+      - "8080:8000" # el único servicio con puerto al host
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - docsafe
+
+networks:
+  docsafe:
+    driver: bridge
+
+volumes:
+  azurite-data:
+  catalog-data:
