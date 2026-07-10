@@ -2,7 +2,7 @@
 
 > [!info] Esta app forma parte de un artículo
 > Este repositorio es el código de la app de ejemplo que acompaña al artículo
-> **[Arquitectura privada en Azure Container Apps con Terraform](https://kevorojas.com/es/blog/azure-container-apps-arquitectura-privada)**,
+> **[Arquitectura privada en Azure Container Apps con Terraform](https://kevorojas.com/en/blog/azure-container-apps-private-architecture)**,
 > publicado en [kevorojas.com](https://kevorojas.com). Ahí explico, capítulo por
 > capítulo, cómo se construye con **Terraform** una arquitectura privada en Azure
 > —VNet, sin ingress público, identidades sin secretos, pipelines separados— y
